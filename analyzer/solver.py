@@ -7,6 +7,7 @@ import keras
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import json
 
 def show_history(h):
     epochs_trained = len(h.history['loss'])
@@ -31,13 +32,15 @@ def show_history(h):
 
 # Importing Data
 
-from datasets import load_dataset
+with open('../data/total_posts.json', 'r') as file:
+    dataset = json.load(file)
 
-dataset = load_dataset('emotion')
+random.shuffle(dataset)
+len_posts = len(dataset)
 
-train = dataset['train']
-val = dataset['validation']
-test = dataset['test']
+train = dataset[:int(len_posts*0.8)]
+val = dataset[int(len_posts*0.8):int(len_posts*0.9)]
+test = dataset[int(len_posts*0.9):]
 
 def get_tweet(data):
     tweets = [x['text'] for x in data]
@@ -46,14 +49,12 @@ def get_tweet(data):
 
 tweets, labels = get_tweet(train)
 
-print(tweets[4], labels[4])
-
 
 # Tokenizer
 
 from tensorflow.keras.preprocessing.text import Tokenizer       # type: ignore
 
-tokenizer = Tokenizer(num_words=5000, oov_token='<UNK>')
+tokenizer = Tokenizer(num_words=1000, oov_token='<UNK>')
 tokenizer.fit_on_texts(tweets)
 
 
@@ -63,7 +64,7 @@ lengths = [len(t.split(' ')) for t in tweets]
 # plt.hist(lengths, bins=len(set(lengths)))
 # plt.show()
 
-max_len = 50
+max_len = 200
 
 from tensorflow.keras.preprocessing.sequence import pad_sequences      # type: ignore
 
@@ -83,10 +84,10 @@ train_labels = np.array(labels)
 # Creating the Model
 
 model = keras.models.Sequential([
-    keras.layers.Embedding(5000, 16),
+    keras.layers.Embedding(1000, 16),
     keras.layers.Bidirectional(keras.layers.LSTM(20, return_sequences=True)),
     keras.layers.Bidirectional(keras.layers.LSTM(20)),
-    keras.layers.Dense(6, activation='softmax')
+    keras.layers.Dense(2, activation='sigmoid')
 ])
 
 model.compile(  
@@ -95,22 +96,29 @@ model.compile(
     metrics=['accuracy']
 )
 
-model.summary()
+# model.summary()
 
 
 # Training the Model
+
+from sklearn.utils.class_weight import compute_class_weight
 
 val_tweets, val_labels = get_tweet(val)
 val_seq = get_sequences(tokenizer, val_tweets)
 val_labels = np.array(val_labels)
 
+
+class_weights = compute_class_weight(class_weight='balanced', classes=np.unique(labels), y=labels)
+class_weight_dict = dict(enumerate(class_weights))
+
 h = model.fit(
     padded_train_seq, train_labels,
     validation_data=(val_seq, val_labels),
     epochs=20,
-    callbacks=[
-        keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=2)
-    ]
+    class_weight=class_weight_dict,
+    # callbacks=[
+    #     keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=2)
+    # ]
 )
 
 
@@ -130,3 +138,4 @@ print('Emotion: ', test_labels[i])
 p = model.predict(np.expand_dims(test_seq[i], axis=0))
 pred_class = np.argmax(p).astype('uint8')
 print('Predicted Emotion:', pred_class)
+print(f"Confidence score: {p[0][0] * 100:.2f}%")
