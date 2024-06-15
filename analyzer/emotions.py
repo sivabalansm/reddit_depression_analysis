@@ -4,9 +4,9 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 import tensorflow as tf
+import keras
 import numpy as np
 import matplotlib.pyplot as plt
-import nlp
 import random
 
 def show_history(h):
@@ -69,7 +69,7 @@ print(tweets[4], labels[4])
 
 # Tokenizer
 
-from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.text import Tokenizer       # type: ignore
 
 tokenizer = Tokenizer(num_words=1000, oov_token='<UNK>')
 tokenizer.fit_on_texts(tweets)
@@ -84,7 +84,7 @@ lengths = [len(t.split(' ')) for t in tweets]
 
 max_len = 50
 
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.sequence import pad_sequences      # type: ignore
 
 def get_sequences(tokenizer, tweets):
     sequences = tokenizer.texts_to_sequences(tweets)
@@ -115,8 +115,6 @@ train_labels = np.array(labels)
 
 
 # Creating the Model
-
-import keras
 
 model = keras.models.Sequential([
     keras.layers.Embedding(1000, 16),
@@ -151,4 +149,20 @@ h = model.fit(
     ]
 )
 
-print(h)
+
+# Evaluating the Model
+
+show_history(h)
+
+test_tweets, test_labels = get_tweet(test)
+test_seq = get_sequences(tokenizer, test_tweets)
+test_labels = np.array(test_labels)
+
+_ = model.evaluate(test_seq, test_labels)
+
+i = random.randint(0, len(test_labels)-1)
+print('Sentence: ', test_tweets[i])
+print('Emotion: ', test_labels[i])
+p = model.predict(np.expand_dims(test_seq[i], axis=0))
+pred_class = np.argmax(p).astype('uint8')
+print('Predicted Emotion:', pred_class)
