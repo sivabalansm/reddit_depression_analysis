@@ -17,10 +17,9 @@ for user, posts in jsonData.items():
 
     posts = [post for post in posts if len(post[1][1].split()) >= 10 ]
 
-    # posts = [post for post in posts if post[0] != file_name]
+    posts = [post for post in posts if post[0] != file_name]
 
     for post in posts:
-        if post[0] == 'MadeMeSmile': raise Exception
         for word in post[1][1].split():
             words[word] = words.get(word, 0) + 1
 
