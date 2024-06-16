@@ -111,26 +111,34 @@ val_labels = np.array(val_labels)
 class_weights = compute_class_weight(class_weight='balanced', classes=np.unique(labels), y=labels)
 class_weight_dict = dict(enumerate(class_weights))
 
+print(class_weight_dict)
+
 h = model.fit(
     padded_train_seq, train_labels,
     validation_data=(val_seq, val_labels),
     epochs=20,
     class_weight=class_weight_dict,
-    # callbacks=[
-    #     keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=2)
-    # ]
+    callbacks=[
+        keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=2)
+    ]
 )
 
 
 # Evaluating the Model
 
-show_history(h)
+# show_history(h)
 
 test_tweets, test_labels = get_tweet(test)
 test_seq = get_sequences(tokenizer, test_tweets)
 test_labels = np.array(test_labels)
 
 _ = model.evaluate(test_seq, test_labels)
+
+y_pred = model.predict(test_seq)
+y_pred = (y_pred > 0.5).astype(int)
+
+y_pred = np.array(list(map(lambda x: x[1], y_pred)))
+
 
 i = random.randint(0, len(test_labels)-1)
 print('Sentence: ', test_tweets[i])
@@ -139,3 +147,14 @@ p = model.predict(np.expand_dims(test_seq[i], axis=0))
 pred_class = np.argmax(p).astype('uint8')
 print('Predicted Emotion:', pred_class)
 print(f"Confidence score: {p[0][0] * 100:.2f}%")
+
+
+from sklearn.metrics import confusion_matrix
+
+tn, fp, fn, tp = confusion_matrix(test_labels, y_pred).ravel()
+
+fpr = fp / (fp + tn)
+print(f"False Positive Rate: {fpr:.4f}")
+
+fnr = fn / (fn + tp)
+print(f"False Negative Rate: {fnr:.4f}")
