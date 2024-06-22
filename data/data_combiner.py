@@ -26,5 +26,7 @@ for post_file in post_files:
 
 shuffle(total_posts)
 
+print(len(total_posts))
+
 with open('total_posts.json', 'w') as outputFile:
     json.dump(total_posts, outputFile, indent=4)

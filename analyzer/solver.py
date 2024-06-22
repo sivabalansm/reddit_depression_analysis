@@ -96,7 +96,7 @@ model.compile(
     metrics=['accuracy']
 )
 
-# model.summary()
+model.summary()
 
 
 # Training the Model
@@ -126,6 +126,7 @@ h = model.fit(
 
 # Evaluating the Model
 
+model.summary()
 # show_history(h)
 
 test_tweets, test_labels = get_tweet(test)
