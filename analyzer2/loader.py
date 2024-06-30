@@ -1,39 +1,42 @@
 import torch
-import keras
 import numpy as np
 import pandas as pd
 import json
-import nltk
-import re
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from keras_preprocessing.text import Tokenizer
 import string
 import emoji
-
-nltk.download("stopwords")
-nltk.download("punkt")
-
-stop_words = set(stopwords.words('english'))
+from nltk.tokenize import word_tokenize, wordpunct_tokenize
+# from keras_preprocessing.text import Tokenizer
 
 
 # can also use demoji package
 # demoji.download_codes()
-all_letters = string.ascii_letters
 
 class Message():
-    def __init__(self, message: str):
-        self.text = message
+    def __init__(self, message):
+        self.message = message
+        self.all_chars = string.ascii_letters
+        self.n_chars = len(self.all_chars)
 
-    def extract_emojis(self, message):
-        return emoji.demojize(message, delimiters=("", ""))
+    def extract_emojis(self):
+        return emoji.demojize(self.message, delimiters=("", ""))
 
-    def tokenize(self):
+    def word_embedding(self):
         pass
 
-    # def messageToTensor(self, message):
-    #     tensor = torch.zeros(len(message), 1, n_letters)
-    #     message = message.split()
+    def ngram(self):
+        context_size = 2
+        embedding_dim = 10
+        message = self.message.split()
+        vocab = set(message)
+        word_to_ix = {word: i for i, word in enumerate(vocab)}
+        ngrams = [([message[i-j-1] for j in range(context_size)], message[i]) for i in range(context_size, len(message))]
+
+    def char_embedding(self):
+        """Embedding of each letter using a tensor/array as a one-hot vector"""
+        tensor = torch.zeros(len(self.message), 1, self.n_chars)
+        for num, letter in enumerate(self.message):
+            tensor[num][0][self.all_chars.find(letter)] = 1
+        return tensor
 
 class Dataset():
     def __init__(self, filename: str, filetype: str):
@@ -51,7 +54,5 @@ class Dataset():
 
 
 if __name__ == "__main__":
-    # Test emoji replacement
-    message = Message("hello how are you 😜")
-    message = message.extract_emojis(message.text)
+    message = Message("hello how are you 😜").extract_emojis()
     print(message)
