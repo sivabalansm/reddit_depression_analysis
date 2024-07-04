@@ -6,6 +6,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
+
+import matplotlib.pyplot as plt
 # from sklearn.metrics import accuracy_score, roc_auc_score
 
 from loader import *
@@ -34,7 +36,7 @@ class RNN(nn.Module):
     def init_hidden(self):
         return torch.zeros(1, self.hidden_size)
 
-def train(model, x, y, epochs, lr = 0.005, plot_loss=False):
+def train(model, x, y, epochs, lr=0.005, plot_loss=False):
     bar = tqdm(total=epochs)
     opt = torch.optim.SGD(model.parameters(), lr=lr)
     nll = nn.NLLLoss()
@@ -46,12 +48,12 @@ def train(model, x, y, epochs, lr = 0.005, plot_loss=False):
 
         output, hidden = None, None
         for i in range(len(x)):
-            message = Message(x[i]).embed()
+            message = x[i]
             hidden = model.init_hidden()
-            for j, k in enumerate(message.size()[0]):
-                output, hidden = model(x, hidden)
+            for j in range(message.size()[0]):
+                output, hidden = model(message[j], hidden)
 
-            loss = nll(output, y)
+            loss = nll(torch.argmax(output).item(), y)
             cumulative_loss += loss
             loss.backward()
             opt.step()
@@ -60,6 +62,9 @@ def train(model, x, y, epochs, lr = 0.005, plot_loss=False):
             bar.update()
         all_losses.append(cumulative_loss)
     if plot_loss:
+        plt.figure()
+        plt.plot(all_losses)
+        plt.show()
         pass
     return model
 
@@ -68,19 +73,16 @@ def predict(input_message):
     # with torch.no_grad():
     #     output = evaluate
 
-def get_category(output):
-    category_idx = torch.argmax(output)
-    return category_idx
-
 if __name__ == "__main__":
     data_obj = Dataset("Suicide_Detection.csv")
     n_hidden = 128
     n_categories = 2    # 0 or 1
 
-    x, y = torch.Tensor(data_obj.data['tensors']).to(device), torch.Tensor(data_obj.data['class']).to(device)
-    # xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size=0.4, random_state = 12)
-    model = RNN(n_chars, n_hidden, n_categories)
-    model = train(model, x, y, epochs=500)
+    x, y = data_obj.data['tensors'], data_obj.data['class']
+    xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size=0.4, random_state = 12)
+    xtrain, xtest, ytrain, ytest = torch.Tensor(xtrain).to(device), torch.Tensor(xtest).to(device), torch.Tensor(ytrain).to(device), torch.Tensor(ytest).to(device)
+    model = RNN(n_chars, n_hidden, n_categories).to(device)
+    model = train(model, xtrain, ytrain, epochs=500)
 
     from pathlib import Path
     Path("../models").mkdir(parents=True, exist_ok=True)

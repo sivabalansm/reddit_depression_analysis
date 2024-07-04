@@ -1,10 +1,10 @@
-import torch
 import numpy as np
 import pandas as pd
-import json
-import string
-import emoji
-from nltk.tokenize import word_tokenize, wordpunct_tokenize
+import json, string, emoji
+import torch
+from nltk.tokenize import sent_tokenize, word_tokenize #, wordpunct_tokenize
+import gensim
+
 # from keras_preprocessing.text import Tokenizer
 
 all_chars = string.ascii_letters + string.punctuation + string.digits
@@ -33,16 +33,25 @@ class Message(str):
         return self.message
 
     def word_embedding(self):
-        pass
+        sample = open("file")
+        sample = sample.read().replace("\n", " ")
+        data = list()
+        for i in sent_tokenize(sample):
+            temp = list()
+            for j in word_tokenize(i):
+                temp.append(j.lower())
+            data.append(temp)
+        word_model = gensim.models.Word2Vec(data, min_count=1)
+        return word_model
 
-    def ngram(self):
-        context_size = 2
-        embedding_dim = 10
-        message = self.message.split()
-        vocab = set(message)
-        word_to_ix = {word: i for i, word in enumerate(vocab)}
-        ngrams = [([message[i-j-1] for j in range(context_size)], message[i]) for i in range(context_size, len(message))]
-        pass
+    # def ngram(self):
+    #     context_size = 2
+    #     embedding_dim = 10
+    #     message = self.message.split()
+    #     vocab = set(message)
+    #     word_to_ix = {word: i for i, word in enumerate(vocab)}
+    #     ngrams = [([message[i-j-1] for j in range(context_size)], message[i]) for i in range(context_size, len(message))]
+    #     pass
 
 class Dataset():
     def __init__(self, filename: str, filetype: str = "csv"):
@@ -54,6 +63,7 @@ class Dataset():
         else: #filetype == "json":
             with open(f"../data/{filename}") as f:
                 self.data = json.load(f)
+        print("Loading tensors")
         self.data.insert(1, "tensors", [Message(self.data.iloc[i, 0]).embed() for i in range(self.data.shape[0])], allow_duplicates=True)
         print(self.data.head())
 
