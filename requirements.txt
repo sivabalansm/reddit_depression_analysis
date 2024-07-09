@@ -32,6 +32,7 @@ jupyter_core==5.7.2
 keras==3.4.0
 Keras-Preprocessing==1.1.2
 kiwisolver==1.4.5
+latest==0.6.0
 libclang==18.1.1
 Markdown==3.6
 markdown-it-py==3.0.0
@@ -73,8 +74,12 @@ ptyprocess==0.7.0
 pure-eval==0.2.2
 Pygments==2.18.0
 pyparsing==3.1.2
+PyQt6==6.7.0
+PyQt6-Qt6==6.7.2
+PyQt6-sip==13.6.0
 python-dateutil==2.9.0.post0
 pytz==2024.1
+PyYAML==6.0.1
 pyzmq==26.0.3
 regex==2024.5.15
 requests==2.32.3
