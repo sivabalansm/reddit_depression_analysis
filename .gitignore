@@ -1,4 +1,6 @@
 *.json
 *.csv
 .venv
+*.npy
+word_vectors
 __pycache__/

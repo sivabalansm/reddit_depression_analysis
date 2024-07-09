@@ -40,7 +40,6 @@ class Dataset():
     def __init__(self, filename: str, filetype: str = "csv", model: gensim.models.word2vec.Word2Vec | None = None):
         print(f"Loading {filename} dataset...")
         self.data = None
-        self.training_data = list()
         if filetype == "csv":
             self.data = pd.read_csv(f"../data/{filename}")
             self.data.drop(["Unnamed: 0"], axis=1, inplace=True)
@@ -49,7 +48,7 @@ class Dataset():
             with open(f"../data/{filename}") as f:
                 self.data = json.load(f)
         if model is None:
-            model = self.train_embedding_model(save_model=False)
+            model = self.train_embedding_model(save_model=True)
         self.tensor_shape = model.wv.get_vector(0).shape[0]
 
     def __str__(self):
@@ -82,6 +81,7 @@ class Dataset():
     def train_embedding_model(self, save_model=True):
         """Training the embedding model (get a vector for every word)"""
         nltk.download('popular')
+        self.training_data = list()
         for i in range(self.data.shape[0]):
             text = self.data.iloc[i, 0]
             text.replace("\n", " ")
@@ -96,13 +96,14 @@ class Dataset():
         if save_model:
             Path("../models").mkdir(parents=True, exist_ok=True)
             word_model.save('../models/word_vectors')
+        self.word_model = word_model
         return word_model
 
 if __name__ == "__main__":
     """Testing"""
-    # word_vectors = data_obj.train_embedding_model()
+    data_obj = Dataset("Suicide_Detection.csv")
+
     word_vectors = gensim.models.Word2Vec.load('../models/word_vectors')
-    data_obj = Dataset("Suicide_Detection.csv", model=word_vectors)
     print(data_obj)
     mean = data_obj.embed_message_mean(data_obj.data.iloc[0, 0], word_vectors)
     print(mean)

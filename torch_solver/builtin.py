@@ -73,11 +73,8 @@ def training(model, xtrain, ytrain, iterations):
     optimizer = torch.optim.SGD(model.parameters(), lr=lr)
 
     def train(model, x, y):
-        hidden = model.init_hidden()
-
         output = 0
-        for i in range(len(x)):
-            output, hidden = model(x[i], hidden)
+        output = model(x)
 
         loss = criterion(output, y)
 
@@ -122,16 +119,17 @@ if __name__ == "__main__":
     data_obj = Dataset("Suicide_Detection.csv", model=word_vectors)
     n_dims = data_obj.tensor_shape
     n_hidden = 128
+    n_layers = 2
     n_categories = 2    # 0 or 1
 
-    model = RNN(n_dims, n_hidden, n_categories).to(device)
+    model = RNN(n_dims, n_hidden, n_layers, n_categories).to(device)
     xtrain, ytrain = list(data_obj.data["text"]), list(data_obj.data["class"])
     iterations = 100000
-    model_name = '../models/torch_RNN.pth'
-    # model = training(model, xtrain, ytrain, iterations)
-    # torch.save(model.state_dict(), model_name)
+    model_name = '../models/builtin_RNN.pth'
+    model = training(model, xtrain, ytrain, iterations)
+    torch.save(model.state_dict(), model_name)
 
-    rnn = RNN(n_dims, n_hidden, n_categories).to(device)
+    rnn = RNN(n_dims, n_hidden, n_layers, n_categories).to(device)
     rnn.load_state_dict(torch.load(model_name))
     rnn.eval()
     tpr, tnr, fpr, fnr = 0, 0, 0, 0

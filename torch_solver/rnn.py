@@ -1,3 +1,4 @@
+import numpy as np
 from tqdm import tqdm
 from pathlib import Path
 Path("../models").mkdir(parents=True, exist_ok=True)
@@ -20,11 +21,9 @@ class RNN(nn.Module):
 
         self.i2h = nn.Linear(input_size + hidden_size, hidden_size)
         self.i2o = nn.Linear(input_size + hidden_size, output_size)
-        # self.h2h = nn.Linear(hidden_size, hidden_size)
-        # self.h2o = nn.Linear(hidden_size, output_size)
 
-        self.softmax = nn.Softmax(dim=1)
-        # self.softmax = nn.LogSoftmax(dim=1)
+        # self.softmax = nn.Softmax(dim=1)
+        self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, input, hidden):
         combination = torch.cat((input, hidden), 1)
@@ -41,7 +40,8 @@ def get_category(output):
 
 def training(model, xtrain, ytrain, iterations):
     """Full backwards function"""
-    criterion = nn.NLLLoss()
+    # criterion = nn.NLLLoss()
+    criterion = nn.CrossEntropyLoss()
     lr = 0.00005
     optimizer = torch.optim.SGD(model.parameters(), lr=lr)
 
@@ -102,15 +102,15 @@ if __name__ == "__main__":
     xtrain, ytrain = list(data_obj.data["text"]), list(data_obj.data["class"])
     iterations = 100000
     model_name = '../models/torch_RNN.pth'
-    # model = training(model, xtrain, ytrain, iterations)
-    # torch.save(model.state_dict(), model_name)
+    model = training(model, xtrain, ytrain, iterations)
+    torch.save(model.state_dict(), model_name)
 
     rnn = RNN(n_dims, n_hidden, n_categories).to(device)
     rnn.load_state_dict(torch.load(model_name))
     rnn.eval()
     tpr, tnr, fpr, fnr = 0, 0, 0, 0
     tn, fp, fn, tp = 0, 0, 0, 0
-    n_iters = 30000
+    n_iters = 15000
     bar = tqdm(total=n_iters)
     for num in range(n_iters):
         x, y = data_obj.embed_message(xtrain[num+100001], word_vectors).to(device), torch.tensor([ytrain[num+100001]]).to(device)
