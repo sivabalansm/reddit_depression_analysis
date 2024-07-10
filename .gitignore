@@ -6,3 +6,4 @@ word_vectors
 __pycache__/
 venv/
 setup.sh
+runs/
