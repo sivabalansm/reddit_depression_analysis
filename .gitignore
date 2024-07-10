@@ -6,3 +6,6 @@ word_vectors
 __pycache__/
 venv/
 setup.sh
+train
+val
+test
