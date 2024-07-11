@@ -5,19 +5,25 @@ from sklearn import svm
 from sys import argv
 from loader import *
 
-def run_model(kernel: str, x, y):
+def run_model(kernel: str, x, y, degree: int = 3):
     xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size=0.14, random_state=42)
     # Fit the SVM model
-    model = svm.SVC(kernel=kernel)
+    model = None
+    if kernel == "poly":
+        model = svm.SVC(kernel=kernel, degree=degree)
+    else:
+        model = svm.SVC(kernel=kernel, degree=degree)
     model.fit(xtrain, ytrain)
 
     # Predict using the SVM model
+    print("Predicting...")
     predictions = model.predict(xtest)
 
     # Evaluate the predictions
+    print("Calculating metrics...")
     tn, fp, fn, tp = confusion_matrix(ytest, predictions).ravel()
     ConfusionMatrixDisplay.from_predictions(ytest, predictions, normalize="true", values_format=".0%")
-    plt.savefig(f"{kernel}_SVM.png")
+    plt.savefig(f"results/{kernel}_{degree}_SVM.png")
     tpr = tp / (tp + fn)
     tnr = tn / (tn + fp)
     fpr = fp / (fp + tn)
@@ -27,8 +33,8 @@ def run_model(kernel: str, x, y):
     prec = precision_score(ytest, predictions)
     f1 = f1_score(ytest, predictions)
 
-    with open("results_svm.txt", "a+") as f:
-        print(f"{kernel.capitalize()} SVM", file=f)
+    with open("results/results_svm.txt", "a+") as f:
+        print(f"{kernel.capitalize()}, degree = {degree} SVM", file=f)
         print(f"Confusion Matrix of {kernel} SVM: {tp}, {tn}, {fp}, {fn}", file=f)
         print(f"True Positive Rate of {kernel} SVM: {tpr:.4f}", file=f)
         print(f"True Negative Rate of {kernel} SVM: {tnr:.4f}", file=f)
@@ -53,8 +59,7 @@ print("Loading tensors...")
 x = data_obj.embed_message_mean()
 y = data_obj.labels
 
-run_model(argv[1], x, y)
 # run_model('linear', x, y)
-# run_model('poly', x, y)
+run_model('poly', x, y, degree=4)
 # run_model('rbf', x, y)
 # run_model('sigmoid', x, y)
