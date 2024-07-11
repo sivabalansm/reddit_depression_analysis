@@ -6,7 +6,19 @@ word_vectors
 __pycache__/
 venv/
 setup.sh
+<<<<<<< HEAD
 runs/
 train
 val
 test
+=======
+<<<<<<< HEAD
+preprocessing/
+models/
+=======
+train
+val
+test
+models
+>>>>>>> cb3b0f7475e5c5d0101db82d527fd486373dec96
+>>>>>>> be05a6835c4c8401613f66bf9ee4ccb9bbb94d92

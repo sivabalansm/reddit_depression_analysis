@@ -1,5 +1,7 @@
 import numpy as np
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+from sys import argv
 from pathlib import Path
 Path("../models").mkdir(parents=True, exist_ok=True)
 
@@ -7,8 +9,6 @@ import torch; torch.manual_seed(0)
 torch.autograd.set_detect_anomaly(True)
 generator = torch.Generator().manual_seed(0)
 import torch.nn as nn
-
-import matplotlib.pyplot as plt
 
 from loader import *
 
@@ -68,7 +68,7 @@ def training(model, xtrain, ytrain, iterations):
     loss = 0
     bar = tqdm(total=n_iters)
     for i in range(n_iters):
-        x, y = data_obj.embed_message(xtrain[i], word_vectors).to(device), torch.tensor([ytrain[i]]).to(device)
+        x, y = data_obj.embed_message(xtrain[i]).to(device), torch.tensor([ytrain[i]]).to(device)
 
         model, output, loss = train(model, x, y)
 
@@ -89,31 +89,36 @@ if __name__ == "__main__":
     """Training/Testing (on Suicide_Detection.csv)"""
 
     """To train a word embedding model"""
-    # data_obj = Dataset("Suicide_Detection.csv", model=word_vectors)
-    # train = data_obj.train_embedding_model()
+    # data_obj = Dataset(argv[1])
+    # data_obj = Dataset("Suicide_Detection.csv")
 
-    word_vectors = gensim.models.Word2Vec.load('../models/word_vectors')
+    word_vectors = gensim.models.Word2Vec.load('preprocessing/word_vectors')
     data_obj = Dataset("Suicide_Detection.csv", model=word_vectors)
+
     n_dims = data_obj.tensor_shape
     n_hidden = 128
     n_categories = 2    # 0 or 1
 
+    """Training RNN"""
     model = RNN(n_dims, n_hidden, n_categories).to(device)
     xtrain, ytrain = list(data_obj.data["text"]), list(data_obj.data["class"])
+    # iterations = int(argv[2])
     iterations = 100000
-    model_name = '../models/torch_RNN.pth'
+    model_name = '../models/torch_RNN2.pth'
     model = training(model, xtrain, ytrain, iterations)
     torch.save(model.state_dict(), model_name)
 
+    """Testing"""
     rnn = RNN(n_dims, n_hidden, n_categories).to(device)
     rnn.load_state_dict(torch.load(model_name))
     rnn.eval()
     tpr, tnr, fpr, fnr = 0, 0, 0, 0
     tn, fp, fn, tp = 0, 0, 0, 0
+    # n_iters = int(argv[3])
     n_iters = 15000
     bar = tqdm(total=n_iters)
     for num in range(n_iters):
-        x, y = data_obj.embed_message(xtrain[num+100001], word_vectors).to(device), torch.tensor([ytrain[num+100001]]).to(device)
+        x, y = data_obj.embed_message(xtrain[num+iterations+1]).to(device), torch.tensor([ytrain[num+iterations+1]]).to(device)
         hidden = rnn.init_hidden()
 
         output = 0
@@ -132,26 +137,12 @@ if __name__ == "__main__":
             fp += 1
 
         try:
-            tpr = tp / (tp + fn)
+            acc = (tp + tn) / (tp + tn + fp + fn)
         except ZeroDivisionError:
-            tpr = 0
-        try:
-            tnr = tn / (tn + fp)
-        except ZeroDivisionError:
-            tnr = 0
-        try:
-            fpr = fp / (fp + tn)
-        except ZeroDivisionError:
-            fpr = 0
-        try:
-            fnr = fn / (fn + tp)
-        except ZeroDivisionError:
-            fnr = 0
+            acc = 0
 
-        bar.set_description(f"Iter {num+1}/{n_iters} TPR: {tpr:.4f} TNR: {tnr:.4f} FPR: {fpr:.4f} FNR: {fnr:.4f}")
+        bar.set_description(f"Iter {num+1}/{n_iters} ACC: {acc:.4f}")
         bar.update()
 
-    print(f"True Positive Rate: {tpr:.4f}")
-    print(f"True Positive Rate: {tnr:.4f}")
-    print(f"False Positive Rate: {fpr:.4f}")
-    print(f"False Negative Rate: {fnr:.4f}")
+
+    calculate_metrics(tp, tn, fp, fn, print_res=True)
