@@ -6,3 +6,5 @@ word_vectors
 __pycache__/
 venv/
 setup.sh
+preprocessing/
+models/
