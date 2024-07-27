@@ -1,0 +1,44 @@
+Linear, degree = 4 SVM
+Confusion Matrix of linear SVM: 15063, 14502, 1788, 1138
+True Positive Rate of linear SVM: 0.9298
+True Negative Rate of linear SVM: 0.8902
+False Positive Rate of linear SVM: 0.1098
+False Negative Rate of linear SVM: 0.0702
+Accuracy of linear SVM: 0.9099
+Precision of linear SVM: 0.8939
+Recall of linear SVM: 0.9298
+F1 Score of linear SVM: 0.9115 
+
+Poly, degree = 4 SVM
+Confusion Matrix of poly SVM: 15163, 15076, 1214, 1038
+True Positive Rate of poly SVM: 0.9359
+True Negative Rate of poly SVM: 0.9255
+False Positive Rate of poly SVM: 0.0745
+False Negative Rate of poly SVM: 0.0641
+Accuracy of poly SVM: 0.9307
+Precision of poly SVM: 0.9259
+Recall of poly SVM: 0.9359
+F1 Score of poly SVM: 0.9309 
+
+Rbf, degree = 4 SVM
+Confusion Matrix of rbf SVM: 15160, 15165, 1125, 1041
+True Positive Rate of rbf SVM: 0.9357
+True Negative Rate of rbf SVM: 0.9309
+False Positive Rate of rbf SVM: 0.0691
+False Negative Rate of rbf SVM: 0.0643
+Accuracy of rbf SVM: 0.9333
+Precision of rbf SVM: 0.9309
+Recall of rbf SVM: 0.9357
+F1 Score of rbf SVM: 0.9333 
+
+Sigmoid, degree = 4 SVM
+Confusion Matrix of sigmoid SVM: 13080, 13187, 3103, 3121
+True Positive Rate of sigmoid SVM: 0.8074
+True Negative Rate of sigmoid SVM: 0.8095
+False Positive Rate of sigmoid SVM: 0.1905
+False Negative Rate of sigmoid SVM: 0.1926
+Accuracy of sigmoid SVM: 0.8084
+Precision of sigmoid SVM: 0.8083
+Recall of sigmoid SVM: 0.8074
+F1 Score of sigmoid SVM: 0.8078 
+
