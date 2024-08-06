@@ -1,6 +1,18 @@
-# Using Recurrent Neural Networks Architectures for Sentiment Analysis and Depression Detection on Social Media
+# Using Machine Learning and Deep Learning Models for Sentiment Analysis and Depression Detection on Social Media
 
-STEM fellowship project: Analyse reddit depression through ML
+This project was done under the STEM Fellowship 2024 National Inter-University Big Data & AI Challenge
 
-## Abstract
-Depression is a widespread mental health disorder affecting millions worldwide. According to the World Health Organization (WHO), in 2023 an estimated 280 million people were affected by depression, constituting approximately 3.8% of the world population. In the age of social media, it is crucial to leverage technology to detect, help, and support individuals displaying symptoms online. Our investigation revealed that social media, particularly Reddit, has a wide demographic of people and hosts a variety of discussion topics, including a significant number of posts on mental health. Thus, this study leverages a comprehensive dataset for analysis that has not been previously investigated for this purpose. Using the large amounts of data on Reddit, the goal is to identify linguistic characteristics, patterns and similarities in texts by individuals suffering depression, followed by training and developing a machine learning model to recognize manifestations of depression. This project aims to compare different Recurrent Neural Network (RNN) architectures applied for sentiment analysis and depression detection on Reddit. These models include simple RNNs, Gated Recurrent Units (GRUs), and Long Short-Term Memories (LSTMs), which are employed to process and analyze sequential data, such as text. The objective is to evaluate and enhance the models’ accuracy. Early detection facilitated by such models could potentially mitigate the impact of mental health disorders through timely intervention and support mechanisms.
+## Publication
+
+If you use any materials from this repository, please cite our paper:
+
+- README will be updated when the paper is published.
+
+## Overview
+    Depression is a widespread mental health disorder affecting millions worldwide.  In the age of social media, it is crucial to leverage technology to detect, help, and support individuals displaying symptoms online. Our investigation revealed that social media, particularly Reddit, has a wide demographic of people and hosts a variety of discussion topics, including a significant number of posts on mental health. Using the large amounts of data on Reddit, the goal is to train and develop various machine learning models to recognize manifestations of depression and evaluating their performance. These models include machine learning and deep learning methods, such as Support Vector Machines (SVMs), transformers, and various Recurrent Neural Network (RNN) architectures — simple RNNs, Gated Recurrent Units (GRUs) and Long Short-Term Memory (LSTM) units — for sentiment analysis and depression detection on Reddit. The objective is to evaluate and enhance the models’ accuracy. Early detection facilitated by such models could potentially mitigate the impact of mental health disorders through timely intervention and support mechanisms.
+
+## License
+The software was developed by Cyrus Y. H. Fung, Peizhe Guan, Qiuyu Huang, and Sivabalan Muthurajan, in Montreal, Canada. It is distributed under the Apache License Version 2.0. Please refer to LICENSE or http://apache.org/licenses/ for details.
+
+## Disclaimer
+The software is provided as-is with no warranty or support. We do not take any responsibility for any damage, loss of income, or any problems you might experience from using our software. If you have questions, you are encouraged to consult the paper and the source code. If you find our software useful, please cite our paper above.
